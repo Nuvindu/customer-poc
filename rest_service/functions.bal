@@ -43,7 +43,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
 }
 
 function validate(DonationEntryItem entry) returns error? {
-    if entry.amount < 0 {
+    if entry.amount < 0d {
         return error("Amount should be greater than zero");
     }
 }
@@ -75,29 +75,33 @@ function upsertToSalesforce(DonationEntry valid) returns error? {
     };
     bulkv2:BulkJob job = check sfClient->createIngestJob(jobPayload);
     string[][] csvData = [
-        ["Transaction_Id__c", "Donor_Id__c", "Donor_Name__c", "Donor_Email__c", "Amount__c", "Payment_Mode__c", "Donation_Date__c"]
+        [
+            "Transaction_Id__c",
+            "Donor_Id__c",
+            "Donor_Name__c",
+            "Donor_Email__c",
+            "Amount__c",
+            "Payment_Mode__c",
+            "Donation_Date__c",
+            "Donation_Category__c",
+            "Receipt_Required__c"
+        ]
     ];
     foreach DonationEntryItem entry in valid {
-        csvData.push([
-            entry.transactionId,
-            entry.donorId,
-            entry.donorName,
-            entry.donorEmail,
-            entry.amount.toString(),
-            entry.paymentMode,
-            convertToIsoDate(entry.donationDate)
-        ]);
+        SalesforceEntry mapped = transformToSalesforceEntry(entry);
+        array:push(csvData, [
+                    mapped.transactionId,
+                    mapped.donorId,
+                    mapped.donorName,
+                    mapped.donorEmail,
+                    mapped.amount.toString(),
+                    mapped.paymentMode,
+                    mapped.donationDate,
+                    mapped.receiptRequired.toString()
+                ]);
     }
     check sfClient->addBatch(job.id, csvData);
     _ = check sfClient->closeIngestJob(job.id);
-}
-
-function convertToIsoDate(string date) returns string {
-    string[] parts = re `/`.split(date);
-    if parts.length() == 3 && parts[0].length() == 2 {
-        return string `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return date;
 }
 
 function writeRejectionReport(DonationEntry rejected) returns error? {
