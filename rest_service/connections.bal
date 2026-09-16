@@ -2,6 +2,7 @@ import ballerina/ftp;
 import ballerinax/salesforce.bulkv2;
 
 final ftp:Client ftpClient = check new ({
+    protocol: protocol,
     host: ftpHost,
     port: ftpPort,
     auth: {
