@@ -7,7 +7,7 @@ import ballerinax/salesforce.bulkv2;
 map<string> processingState = {}; // couldnt create this using WI
 
 function processFile(string fileName) returns FileProcessingResponse|error {
-    string stateStorePath = "processing_state.json";
+    string stateStorePath = "/tmp/processing_state.json";
     check sync(stateStorePath);
     string content = check ftpClient->getText(string `${fileName}`);
     DonationEntry entries = check csv:parseString(string `${content}`);
