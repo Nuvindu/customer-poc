@@ -1,10 +1,10 @@
 transactionId,donorId,donorName,donorEmail,amount,paymentMode,donationDate
-TXN-0001,DON-0001,Lucas Leroy,lucas.leroy1@example.fr,0,BANK_TRANSFER,02/08/2026
-TXN-0002,DON-0002,Manon David,manon.david2@example.fr,0,CHEQUE,03/08/2026
-TXN-0003,DON-0003,Hugo Bernard,hugo.bernard3@example.fr,25,CASH,04/08/2026
-TXN-0004,DON-0004,Chloe Moreau,chloe.moreau4@example.fr,30,CARD,05/08/2026
-TXN-0005,DON-0005,Louis Bertrand,louis.bertrand5@example.fr,40,BANK_TRANSFER,06/08/2026
-TXN-0006,DON-0006,Ines Dubois,ines.dubois6@example.fr,50,CHEQUE,07/08/2026
-TXN-0007,DON-0007,Nathan Simon,nathan.simon7@example.fr,75,CASH,08/08/2026
-TXN-0008,DON-0008,Lea Roux,lea.roux8@example.fr,100,CARD,09/08/2026
-TXN-0009,DON-0009,Adam Thomas,adam.thomas9@example.fr,150,BANK_TRANSFER,10/08/2026
+TXN-0001,DON-0001,Lucas Leroy,lucas.leroy1@example.fr,5.0,BANK_TRANSFER,02/08/2026
+TXN-0002,DON-0002,Manon David,manon.david2@example.fr,10.50,CHEQUE,03/08/2026
+TXN-0003,DON-0003,Hugo Bernard,hugo.bernard3@example.fr,25.0,CASH,04/08/2026
+TXN-0004,DON-0004,Chloe Moreau,chloe.moreau4@example.fr,30.0,CARD,05/08/2026
+TXN-0005,DON-0005,Louis Bertrand,louis.bertrand5@example.fr,-40.0,BANK_TRANSFER,06/08/2026
+TXN-0006,DON-0006,Ines Dubois,ines.dubois6@example.fr,-50.0,CHEQUE,07/08/2026
+TXN-0007,DON-0007,Nathan Simon,nathan.simon7@example.fr,-75.0,CASH,08/08/2026
+TXN-0008,DON-0008,Lea Roux,lea.roux8@example.fr,100.0,CARD,09/08/2026
+TXN-0009,DON-0009,Adam Thomas,adam.thomas9@example.fr,150.0,BANK_TRANSFER,10/08/2026
