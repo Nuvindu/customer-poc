@@ -1,3 +1,3 @@
 [workspace]
 title = "restos-poc"
-packages = ["rest_service", "sf_trigger_email"]
+packages = ["rest_service", "sf_trigger_email", "sf_trigger_message_broker"]
