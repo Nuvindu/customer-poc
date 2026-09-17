@@ -1,0 +1,15 @@
+[package]
+org = "nuvindu"
+name = "sf_trigger_message_broker"
+version = "0.1.0"
+distribution = "2201.13.5"
+title = "sf-trigger-message-broker"
+
+[build-options]
+sticky = true
+
+[[dependency]]
+org="ballerinax"
+name="salesforce.pubsub"
+version="0.1.0"
+repository="local"
