@@ -2,13 +2,6 @@ import ballerina/io;
 import ballerina/oauth2;
 import ballerinax/salesforce.pubsub;
 
-configurable string instanceUrl = ?;
-configurable string tenantId = ?;
-configurable string clientId = ?;
-configurable string clientSecret = ?;
-configurable string refreshToken = ?;
-configurable string refreshUrl = ?;
-
 listener pubsub:Listener donationEvents = check new ({
     connection: {
         auth: <oauth2:RefreshTokenGrantConfig>{

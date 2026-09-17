@@ -1,10 +1,9 @@
-
-configurable string baseUrl = ?;
-configurable string sfClientId = ?;
-configurable string sfClientSecret = ?;
-configurable string sfRefreshToken = ?;
-configurable string sfRefreshUrl = ?;
-
 configurable string gmailClientId = ?;
 configurable string gmailClientSecret = ?;
 configurable string gmailRefreshToken = ?;
+configurable string instanceUrl = ?;
+configurable string tenantId = ?;
+configurable string clientId = ?;
+configurable string clientSecret = ?;
+configurable string refreshToken = ?;
+configurable string refreshUrl = ?;
