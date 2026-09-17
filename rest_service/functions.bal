@@ -82,9 +82,7 @@ function upsertToSalesforce(DonationEntry valid) returns error? {
             "Donor_Email__c",
             "Amount__c",
             "Payment_Mode__c",
-            "Donation_Date__c",
-            "Donation_Category__c",
-            "Receipt_Required__c"
+            "Donation_Date__c"
         ]
     ];
     foreach DonationEntryItem entry in valid {
@@ -96,8 +94,7 @@ function upsertToSalesforce(DonationEntry valid) returns error? {
                     mapped.donorEmail,
                     mapped.amount.toString(),
                     mapped.paymentMode,
-                    mapped.donationDate,
-                    mapped.receiptRequired.toString()
+                    mapped.donationDate
                 ]);
     }
     check sfClient->addBatch(job.id, csvData);

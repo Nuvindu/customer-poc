@@ -28,5 +28,4 @@ public type SalesforceEntry record {|
     decimal amount;
     string paymentMode;
     string donationDate;
-    boolean receiptRequired;
 |};

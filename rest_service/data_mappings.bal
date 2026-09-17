@@ -15,6 +15,5 @@ public function transformToSalesforceEntry(DonationEntryItem donationEntry) retu
     donorEmail: donationEntry.donorEmail,
     amount: donationEntry.amount,
     paymentMode: donationEntry.paymentMode,
-    donationDate: convertToSalesforceDate(donationEntry.donationDate),
-    receiptRequired: donationEntry.amount >= 100d
+    donationDate: convertToSalesforceDate(donationEntry.donationDate)
 };
