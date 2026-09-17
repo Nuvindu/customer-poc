@@ -7,3 +7,9 @@ title = "sf-trigger-email"
 
 [build-options]
 sticky = true
+
+[[dependency]]
+org="ballerinax"
+name="salesforce.pubsub"
+version="0.1.0"
+repository="local"

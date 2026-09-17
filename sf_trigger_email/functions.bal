@@ -4,7 +4,7 @@ import ballerinax/googleapis.gmail;
 
 const string EMAIL_SUBJECT_TEMPLATE = "Thank you for your donation, ${donorName}!";
 
-const string EMAIL_BODY_TEMPLATE = "Dear ${donorName},\n\nThank you for your generous donation of $${amount}.\n\nTransaction Details:\n  Transaction ID: ${transactionId}\n  Donation Date: ${donationDate}\n  Payment Mode: ${paymentMode}\n\nWe truly appreciate your continued support.\n\nBest regards,\nThe Restos Team";
+const string EMAIL_BODY_TEMPLATE = "Dear ${donorName},\n\nThank you for your generous donation of $${amount}.\n\nWe truly appreciate your continued support.\n\nBest regards,\nThe Restos Team";
 
 function renderTemplate(string template, map<string> values) returns string {
     string result = template;
@@ -22,10 +22,7 @@ function renderTemplate(string template, map<string> values) returns string {
 function sendEmailNotification(DonationNotification notification) returns error? {
     map<string> templateValues = {
         "donorName": notification.donorName,
-        "amount": notification.amount.toString(),
-        "transactionId": notification.transactionId,
-        "donationDate": notification.donationDate,
-        "paymentMode": notification.paymentMode
+        "amount": notification.amount.toString()
     };
 
     string subject = renderTemplate(EMAIL_SUBJECT_TEMPLATE, templateValues);
@@ -38,5 +35,5 @@ function sendEmailNotification(DonationNotification notification) returns error?
     };
 
     _ = check gmailClient->/users/me/messages/send.post(emailMessage);
-    log:printInfo("Email notification sent", donorEmail = notification.donorEmail, transactionId = notification.transactionId);
+    log:printInfo("Email notification sent", donorEmail = notification.donorEmail, body = body);
 }
