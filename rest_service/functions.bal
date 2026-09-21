@@ -37,7 +37,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
     foreach DonationEntryItem entry in valid {
         processingState[entry.transactionId] = "success";
     }
-    check persist(stateStorePath);
+    check updateState(stateStorePath);
     return {
         fileName,
         validEntries: valid
@@ -70,8 +70,8 @@ function sync(string stateStorePath) returns error? {
     }
 }
 
-function persist(string stateStorePath) returns error? {
-    check io:fileWriteJson(stateStorePath, processingState.toJson());
+function updateState(string stateStorePath) returns error? {
+    check io:fileWriteJson(stateStorePath, processingState .toJson());
 }
 
 function upsertToSalesforce(DonationEntry valid) returns error? {
@@ -114,7 +114,7 @@ function writeRejectionReport(DonationEntry rejected) returns error? {
 
     string[][] lines = [["transactionId", "donorId", "donorName", "donorEmail", "amount", "paymentMode", "donationDate"]];
     foreach DonationEntryItem item in rejected {
-        lines.push([item.transactionId, item.donorId, item.donorName, item.donorEmail, item.amount.toString(), item.paymentMode, item.donationDate]);
+        array:push(lines, [item.transactionId, item.donorId, item.donorName, item.donorEmail, item.amount.toString(), item.paymentMode, item.donationDate]);
     }
     check ftpClient->putCsv(reportName, lines);
 }
@@ -140,11 +140,10 @@ Please review and correct these entries before resubmitting.
 Best regards,
 The Restos Team`;
 
-    gmail:MessageRequest emailMessage = {
+    gmail:Message result = check gmailClient->/users/[string `me`]/messages/send.post({
         to: [rejectionNotifyEmail],
         subject: subject,
         bodyInText: body
-    };
-    _ = check gmailClient->/users/me/messages/send.post(emailMessage);
-    log:printInfo("Rejection summary email sent", recipient = rejectionNotifyEmail, rejectedCount = rejected.length());
+    });
+    log:printInfo("Rejection summary email sent", recipient = rejectionNotifyEmail);
 }
