@@ -47,7 +47,13 @@ function processFile(string fileName) returns FileProcessingResponse|error {
 
 function validate(DonationEntryItem entry) returns error? {
     if entry.amount <= 0d {
-        return error("Amount should be greater than zero");
+        return error("Amount must be greater than zero");
+    }
+    if !entry.donorEmail.matches(re `^[^@\s]+@[^@\s]+\.[^@\s]+$`) {
+        return error(string `Invalid email: ${entry.donorEmail}`);
+    }
+    if !entry.donationDate.matches(re `^\d{2}/\d{2}/\d{4}$`) {
+        return error(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`);
     }
 }
 
