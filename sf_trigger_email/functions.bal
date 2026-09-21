@@ -1,39 +1,13 @@
-
 import ballerina/log;
 import ballerinax/googleapis.gmail;
 
-const string EMAIL_SUBJECT_TEMPLATE = "Thank you for your donation, ${donorName}!";
-
-const string EMAIL_BODY_TEMPLATE = "Dear ${donorName},\n\nThank you for your generous donation of $${amount}.\n\nWe truly appreciate your continued support.\n\nBest regards,\nThe Restos Team";
-
-function renderTemplate(string template, map<string> values) returns string {
-    string result = template;
-    foreach [string, string] [key, value] in values.entries() {
-        string placeholder = "${" + key + "}";
-        int? idx = result.indexOf(placeholder);
-        while idx is int {
-            result = result.substring(0, idx) + value + result.substring(idx + placeholder.length());
-            idx = result.indexOf(placeholder);
-        }
-    }
-    return result;
-}
-
-function sendEmailNotification(DonationNotification notification) returns error? {
-    map<string> templateValues = {
-        "donorName": notification.donorName,
-        "amount": notification.amount.toString()
-    };
-
-    string subject = renderTemplate(EMAIL_SUBJECT_TEMPLATE, templateValues);
-    string body = renderTemplate(EMAIL_BODY_TEMPLATE, templateValues);
-
-    gmail:MessageRequest emailMessage = {
-        to: [notification.donorEmail],
-        subject: subject,
-        bodyInText: body
-    };
-
-    _ = check gmailClient->/users/me/messages/send.post(emailMessage);
-    log:printInfo("Email notification sent", donorEmail = notification.donorEmail, body = body);
+function sendEmailNotification(SalesforceDonation notification) returns error? {
+    gmail:Message result = check gmailClient->/users/[string `me`]/messages/send.post({
+    to: [
+        notification.Donor_Email__c
+    ],
+    subject: "Thank you for your Donation, " + notification.Donor_Name__c,
+    bodyInText: "Thank you for your generous donation of " + notification.Amount__c.toString()
+});
+    log:printInfo("Email notification sent", donorEmail = notification.Donor_Email__c);
 }

@@ -1,10 +1,9 @@
 import ballerina/io;
-import ballerina/oauth2;
 import ballerinax/salesforce.pubsub;
 
 listener pubsub:Listener donationEvents = check new ({
     connection: {
-        auth: <oauth2:RefreshTokenGrantConfig>{
+        auth: {
             clientId,
             clientSecret,
             refreshToken,
@@ -18,31 +17,26 @@ listener pubsub:Listener donationEvents = check new ({
     }
 });
 
+map<boolean> processedEvents = {};
+
 service /data/Donation__ChangeEvent on donationEvents {
     remote function onEvent(pubsub:Event event) returns error? {
-        io:println("Donation CDC event");
-        pubsub:Payload changedData = check event.payload["changedData"].ensureType();
-        pubsub:Payload metadata = check event.payload["metadata"].ensureType();
-        string[] changedFields = check metadata["changedFields"].ensureType();
-        string[] nulledFields = check metadata["nulledFields"].ensureType();
-
-        DonationNotification notification = check transformToDonationNotification(changedData);
-        check sendEmailNotification(notification);
-        io:println({
-            topic: event.topic,
-            replayId: event.replayId,
-            changedFields,
-            nulledFields,
-            metadata,
-            changedData
-        });
+        string? eventId = event.eventId;
+        if eventId is string {
+            if processedEvents.hasKey(eventId) {
+                return;
+            }
+            processedEvents[eventId] = true;
+        }
+        SalesforceDonation salesforceData = check event.payload["changedData"].cloneWithType();
+        check sendEmailNotification(salesforceData);
     }
 
     remote function onError(pubsub:ListenerError err) returns error? {
         io:println("Donation CDC listener stopped: ", {
-            operation: err.operation,
-            topic: err.topic,
-            grpcStatus: err.grpcStatus
-        });
+                                                          operation: err.operation,
+                                                          topic: err.topic,
+                                                          grpcStatus: err.grpcStatus
+                                                      });
     }
 }
