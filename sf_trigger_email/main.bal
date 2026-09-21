@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/lang.value;
 import ballerinax/salesforce.pubsub;
 
 listener pubsub:Listener donationEvents = check new ({
@@ -28,8 +29,8 @@ service /data/Donation__ChangeEvent on donationEvents {
             }
             processedEvents[eventId] = true;
         }
-        SalesforceDonation salesforceData = check event.payload["changedData"].cloneWithType();
-        check sendEmailNotification(salesforceData);
+        SalesforceDonation salesforceData = check value:cloneWithType(event.payload["changedData"]);
+        check sendEmailNotification(salesforceData); 
     }
 
     remote function onError(pubsub:ListenerError err) returns error? {

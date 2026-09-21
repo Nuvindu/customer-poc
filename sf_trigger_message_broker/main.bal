@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/lang.value;
 import ballerinax/kafka;
 import ballerinax/salesforce.pubsub;
 
@@ -31,7 +32,8 @@ listener pubsub:Listener donationEvents = check new ({
 
 service /data/Donation__ChangeEvent on donationEvents {
     remote function onEvent(pubsub:Event event) returns error? {
-        SalesforceDonation salesforceDonation = check event.payload["changedData"].cloneWithType();
+        pubsub:Payload payload = event.payload;
+        SalesforceDonation salesforceDonation = check value:cloneWithType(payload["changedData"]);
         check donationsProducer->send({
             topic: kafkaTopic,
             value: salesforceDonation
@@ -41,9 +43,9 @@ service /data/Donation__ChangeEvent on donationEvents {
 
     remote function onError(pubsub:ListenerError err) returns error? {
         io:println("Donation CDC listener stopped: ", {
-            operation: err.operation,
-            topic: err.topic,
-            grpcStatus: err.grpcStatus
-        });
+                                                          operation: err.operation,
+                                                          topic: err.topic,
+                                                          grpcStatus: err.grpcStatus
+                                                      });
     }
 }
