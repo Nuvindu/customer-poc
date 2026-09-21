@@ -11,3 +11,8 @@ configurable string clientSecret = ?;
 configurable string refreshUrl = ?;
 configurable string refreshToken = ?;
 configurable string sfBaseUrl = ?;
+
+configurable string gmailClientId = ?;
+configurable string gmailClientSecret = ?;
+configurable string gmailRefreshToken = ?;
+configurable string rejectionNotifyEmail = ?;

@@ -1,4 +1,5 @@
 import ballerina/ftp;
+import ballerinax/googleapis.gmail;
 import ballerinax/salesforce.bulkv2;
 
 final ftp:Client ftpClient = check new ({
@@ -20,5 +21,13 @@ final bulkv2:Client sfClient = check new ({
         clientSecret: clientSecret,
         refreshToken: refreshToken,
         refreshUrl: refreshUrl
+    }
+});
+
+final gmail:Client gmailClient = check new ({
+    auth: {
+        refreshToken: gmailRefreshToken,
+        clientId: gmailClientId,
+        clientSecret: gmailClientSecret
     }
 });

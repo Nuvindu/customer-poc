@@ -2,6 +2,8 @@ import ballerina/data.csv;
 import ballerina/file;
 import ballerina/io;
 import ballerina/lang.array;
+import ballerina/log;
+import ballerinax/googleapis.gmail;
 import ballerinax/salesforce.bulkv2;
 
 map<string> processingState = {}; // couldnt create this using WI
@@ -28,6 +30,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
     }
     if rejected.length() > 0 {
         check writeRejectionReport(rejected);
+        check sendRejectionEmail(rejected);
     }
     if valid.length() > 0 {
         check upsertToSalesforce(valid);
@@ -43,7 +46,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
 }
 
 function validate(DonationEntryItem entry) returns error? {
-    if entry.amount < 0d {
+    if entry.amount <= 0d {
         return error("Amount should be greater than zero");
     }
 }
@@ -104,9 +107,39 @@ function upsertToSalesforce(DonationEntry valid) returns error? {
 function writeRejectionReport(DonationEntry rejected) returns error? {
     string reportName = string `rejected.csv`;
 
-    string[][] lines = [["transactionId"]];
+    string[][] lines = [["transactionId", "donorId", "donorName", "donorEmail", "amount", "paymentMode", "donationDate"]];
     foreach DonationEntryItem item in rejected {
-        lines.push([item.transactionId]);
+        lines.push([item.transactionId, item.donorId, item.donorName, item.donorEmail, item.amount.toString(), item.paymentMode, item.donationDate]);
     }
     check ftpClient->putCsv(reportName, lines);
+}
+
+function sendRejectionEmail(DonationEntry rejected) returns error? {
+    string subject = string `Donation Processing - Rejected Entries`;
+    string entryRows = "";
+    foreach DonationEntryItem item in rejected {
+        entryRows = entryRows + string `
+  - Transaction ID: ${item.transactionId}
+    Donor ID: ${item.donorId}
+    Donor Name: ${item.donorName}
+    Donor Email: ${item.donorEmail}
+    Amount: $${item.amount}
+    Payment Mode: ${item.paymentMode}
+    Donation Date: ${item.donationDate}
+`;
+    }
+    string body = string `The following ${rejected.length()} donation entries were rejected during processing:
+${entryRows}
+Please review and correct these entries before resubmitting.
+
+Best regards,
+The Restos Team`;
+
+    gmail:MessageRequest emailMessage = {
+        to: [rejectionNotifyEmail],
+        subject: subject,
+        bodyInText: body
+    };
+    _ = check gmailClient->/users/me/messages/send.post(emailMessage);
+    log:printInfo("Rejection summary email sent", recipient = rejectionNotifyEmail, rejectedCount = rejected.length());
 }
