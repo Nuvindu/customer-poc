@@ -9,3 +9,5 @@ configurable string kafkaBootstrapServers = ?;
 configurable string kafkaCertPath = ?;
 configurable string kafkaKeyPath = ?;
 configurable string kafkaCaCertPath = ?;
+
+configurable string kafkaTopic = ?;
