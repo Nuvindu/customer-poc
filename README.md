@@ -4,20 +4,7 @@ A Ballerina workspace with three integrations that process donation data end-to-
 
 ## Architecture
 
-```
-CSV File (SFTP) 
-    |
-    v
-[rest_service] ---> Salesforce Donation__c (Bulk API v2 Upsert)
-                          |
-                          | (CDC Events)
-                          |
-              +-----------+-----------+
-              |                       |
-              v                       v
-    [sf_trigger_email]     [sf_trigger_message_broker]
-     Send Gmail notify      Publish to Kafka topic
-```
+![Donation Integration](sequence-diagram.png)
 
 ## Use Cases
 
@@ -53,20 +40,20 @@ The input CSV file must have the following columns:
 
 | Column | Type | Description | Example |
 |--------|------|-------------|---------|
-| `transactionId` | string | Unique identifier for the donation transaction | `TXN-2001` |
-| `donorId` | string | Unique identifier for the donor | `DON-2001` |
-| `donorName` | string | Full name of the donor | `Sakura Tanaka` |
-| `donorEmail` | string | Email address of the donor | `sakura.tanaka@example.jp` |
-| `amount` | decimal | Donation amount (must be positive) | `250.00` |
+| `transactionId` | string | Unique identifier for the donation transaction | `TXN-5001` |
+| `donorId` | string | Unique identifier for the donor | `DON-5001` |
+| `donorName` | string | Full name of the donor | `Emily Carter` |
+| `donorEmail` | string | Email address of the donor | `emily.carter@example.com` |
+| `amount` | decimal | Donation amount (must be positive) | `120.00` |
 | `paymentMode` | string | Payment method used | `CARD`, `BANK_TRANSFER`, `CHEQUE`, `CASH` |
-| `donationDate` | string | Date of donation in DD/MM/YYYY format | `15/09/2026` |
+| `donationDate` | string | Date of donation in DD/MM/YYYY format | `10/09/2026` |
 
 **Example CSV:**
 ```csv
 transactionId,donorId,donorName,donorEmail,amount,paymentMode,donationDate
-TXN-2001,DON-2001,Sakura Tanaka,sakura.tanaka@example.jp,250.00,CARD,15/09/2026
-TXN-2002,DON-2002,Marco Rossi,marco.rossi@example.it,75.25,BANK_TRANSFER,16/09/2026
-TXN-2003,DON-2003,Fatima Al-Hassan,fatima.alhassan@example.ae,500.00,CHEQUE,17/09/2026
+TXN-5001,DON-5001,Emily Carter,emily.carter@example.com,120.00,CARD,10/09/2026
+TXN-5002,DON-5002,James Whitfield,james.whitfield@example.com,45.50,BANK_TRANSFER,11/09/2026
+TXN-5003,DON-5003,Olivia Bennett,olivia.bennett@example.com,300.00,CHEQUE,12/09/2026
 ```
 
 ### CSV to Salesforce Field Mapping
@@ -156,13 +143,13 @@ Content-Type: application/json
   "fileName": "donations.csv",
   "validEntries": [
     {
-      "transactionId": "TXN-2001",
-      "donorId": "DON-2001",
-      "donorName": "Sakura Tanaka",
-      "donorEmail": "sakura.tanaka@example.jp",
-      "amount": 250.00,
+      "transactionId": "TXN-5001",
+      "donorId": "DON-5001",
+      "donorName": "Emily Carter",
+      "donorEmail": "emily.carter@example.com",
+      "amount": 120.00,
       "paymentMode": "CARD",
-      "donationDate": "15/09/2026"
+      "donationDate": "10/09/2026"
     }
   ]
 }
