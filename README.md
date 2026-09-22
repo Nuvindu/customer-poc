@@ -14,21 +14,7 @@ An organization receives donation records as CSV files uploaded to an SFTP serve
 
 ### Use Case 2: Real-Time Email Notifications (sf_trigger_email)
 
-When a donation record is created or updated in Salesforce (either via the bulk ingestion above or through any other means), a CDC (Change Data Capture) event fires. The `sf_trigger_email` service listens for these events and automatically sends a personalized thank-you email to the donor using the Gmail API. The email body is rendered from a FreeMarker-style template with `${placeholder}` substitution.
-
-**Email template:**
-```
-Subject: Thank you for your donation, ${donorName}!
-
-Dear ${donorName},
-
-Thank you for your generous donation of $${amount}.
-
-We truly appreciate your continued support.
-
-Best regards,
-The Restos Team
-```
+When a donation record is created or updated in Salesforce (either via the bulk ingestion above or through any other means), a CDC (Change Data Capture) event fires. The `sf_trigger_email` service listens for these events and automatically sends a personalized thank-you email to the donor using the Gmail API.
 
 ### Use Case 3: Event Streaming to Kafka (sf_trigger_message_broker)
 
@@ -51,9 +37,9 @@ The input CSV file must have the following columns:
 **Example CSV:**
 ```csv
 transactionId,donorId,donorName,donorEmail,amount,paymentMode,donationDate
-TXN-5001,DON-5001,Emily Carter,emily.carter@example.com,120.00,CARD,10/09/2026
-TXN-5002,DON-5002,James Whitfield,james.whitfield@example.com,45.50,BANK_TRANSFER,11/09/2026
-TXN-5003,DON-5003,Olivia Bennett,olivia.bennett@example.com,300.00,CHEQUE,12/09/2026
+TXN-10001,DON-5001,Emily Carter,emily.carter@example.com,120.00,CARD,10/09/2026
+TXN-10002,DON-5002,James Whitfield,james.whitfield@example.com,45.50,BANK_TRANSFER,11/09/2026
+TXN-9003,DON-5003,Olivia Bennett,olivia.bennett@example.com,300.00,CHEQUE,12/09/2026
 ```
 
 ### CSV to Salesforce Field Mapping
@@ -77,10 +63,6 @@ Entries are validated before being sent to Salesforce:
 
 ## Idempotency
 
-The `rest_service` ensures idempotent processing through two mechanisms:
-
-### 1. Processing State File
-
 A local JSON state file (`/tmp/processing_state.json`) tracks every transaction by its `transactionId` with one of three states:
 
 | State | Meaning |
@@ -101,14 +83,6 @@ This means calling `POST /process` with the same CSV file multiple times is safe
 ```bash
 rm /tmp/processing_state.json
 ```
-
-### 2. Salesforce Upsert with External ID
-
-The Bulk API v2 operation uses `upsert` with `Transaction_Id__c` as the external ID field. This means:
-- If a `Donation__c` record with the same `Transaction_Id__c` already exists, it is **updated** (not duplicated)
-- If no matching record exists, a new one is **inserted**
-
-This provides a second layer of idempotency at the Salesforce level, even if the local state file is deleted.
 
 ## Prerequisites
 
@@ -176,11 +150,8 @@ Listens to Salesforce CDC events on `Donation__c` and sends a thank-you email to
 
 **What it does:**
 1. Subscribes to `/data/Donation__ChangeEvent` via Salesforce Pub/Sub API
-2. Extracts donor name, email, and amount from the CDC event
-3. Renders a FreeMarker-style email template with `${placeholder}` substitution
-4. Sends the email via the Google Gmail API
-
-**Note:** CDC events only contain fields that were changed, not the full record. The email template uses only `donorName`, `donorEmail`, and `amount` which are reliably present in create/update events.
+2. Converts the CDC payload to a `SalesforceDonation` record using `cloneWithType`
+3. Sends a thank-you email to the donor via the Google Gmail API
 
 **Config (`sf_trigger_email/Config.toml`):**
 ```toml
