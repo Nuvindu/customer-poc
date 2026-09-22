@@ -20,6 +20,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
         error? errorResult = validate(entry);
         if errorResult is error {
             processingState[entry.transactionId] = "rejected";
+            log:printInfo("Entry rejected", transactionId = entry.transactionId);
             array:push(rejected, entry);
             continue;
         }
@@ -35,6 +36,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
     }
     foreach DonationEntryItem entry in valid {
         processingState[entry.transactionId] = "success";
+        log:printInfo("Entry upserted to Salesforce", transactionId = entry.transactionId);
     }
     check updateState(stateStorePath, processingState);
     return {
