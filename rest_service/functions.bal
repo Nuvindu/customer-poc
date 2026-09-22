@@ -2,14 +2,13 @@ import ballerina/data.csv;
 import ballerina/file;
 import ballerina/io;
 import ballerina/lang.array;
+import ballerina/lang.value;
 import ballerina/log;
 import ballerinax/googleapis.gmail;
 import ballerinax/salesforce.bulkv2;
 
-map<string> processingState = {}; // couldnt create this using WI
-
 function processFile(string fileName) returns FileProcessingResponse|error {
-    check sync(stateStorePath);
+    map<string> processingState = check sync(stateStorePath);
     string content = check ftpClient->getText(string `${fileName}`);
     DonationEntry entries = check csv:parseString(string `${content}`);
     DonationEntry valid = [];
@@ -37,7 +36,7 @@ function processFile(string fileName) returns FileProcessingResponse|error {
     foreach DonationEntryItem entry in valid {
         processingState[entry.transactionId] = "success";
     }
-    check updateState(stateStorePath);
+    check updateState(stateStorePath, processingState);
     return {
         fileName,
         validEntries: valid
@@ -56,22 +55,20 @@ function validate(DonationEntryItem entry) returns error? {
     }
 }
 
-function sync(string stateStorePath) returns error? {
+function sync(string stateStorePath) returns map<string>|error {
     boolean exists = check file:test(string `${stateStorePath}`, "EXISTS");
     if exists {
         json|error content = io:fileReadJson(stateStorePath);
         if content is json {
-            processingState = check content.cloneWithType(); // couldnt create this using WI
-        } else {
-            processingState = {};
+            map<string> state = check value:cloneWithType(content);
+            return state;
         }
-    } else {
-        processingState = {};
     }
+    return {};
 }
 
-function updateState(string stateStorePath) returns error? {
-    check io:fileWriteJson(stateStorePath, processingState .toJson());
+function updateState(string stateStorePath, map<string> processingState) returns error? {
+    check io:fileWriteJson(stateStorePath, processingState.toJson());
 }
 
 function upsertToSalesforce(DonationEntry valid) returns error? {
