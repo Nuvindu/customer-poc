@@ -12,7 +12,9 @@ listener pubsub:Listener pubsubListener = new ({
             clientSecret: clientSecret
         }
     },
-    subscriptionConfig: {}
+    subscriptionConfig: {
+        initialReplay: "LATEST"
+    }
 });
 
 service pubsub:Service /data/Donation__ChangeEvent on pubsubListener {
