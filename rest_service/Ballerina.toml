@@ -6,4 +6,5 @@ distribution = "2201.13.5"
 title = "rest-service"
 
 [build-options]
-sticky = true
+sticky = true                                                                                                
+observabilityIncluded = true 
