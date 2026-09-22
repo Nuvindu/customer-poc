@@ -1,4 +1,7 @@
 import ballerina/http;
+import ballerina/observe as _;
+import ballerinax/jaeger as _;
+import ballerinax/prometheus as _;
 
 listener http:Listener httpDefaultListener = http:getDefaultListener();
 
