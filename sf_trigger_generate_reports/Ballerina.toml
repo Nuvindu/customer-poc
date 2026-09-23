@@ -1,0 +1,9 @@
+[package]
+org = "nuvindu"
+name = "sf_trigger_generate_reports"
+version = "0.1.0"
+distribution = "2201.13.6"
+title = "sf-trigger-generate-reports"
+
+[build-options]
+sticky = true
