@@ -1,5 +1,4 @@
 import ballerina/log;
-import ballerinax/googleapis.gmail;
 
 function sendEmailNotification(SalesforceDonation notification) returns error? {
     string? email = notification.Donor_Email__c;
