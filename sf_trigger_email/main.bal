@@ -21,7 +21,6 @@ service pubsub:Service /data/Donation__ChangeEvent on pubsubListener {
     remote function onEvent(pubsub:Event event) returns error? {
         SalesforceDonation salesforceData = check value:cloneWithType(event.payload["changedData"]);
         check sendEmailNotification(salesforceData);
-        check generateDonationReceipt(salesforceData);
     }
 }
 
