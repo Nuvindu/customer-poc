@@ -55,6 +55,10 @@ function validate(DonationEntryItem entry) returns error? {
     if !entry.donationDate.matches(re `^\d{2}/\d{2}/\d{4}$`) {
         return error(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`);
     }
+    string[] allowedPaymentModes = ["CARD", "BANK_TRANSFER", "CHEQUE", "CASH"];
+    if allowedPaymentModes.indexOf(entry.paymentMode) is () {
+        return error(string `Invalid payment mode: ${entry.paymentMode}. Allowed values: ${allowedPaymentModes.toString()}`);
+    }
 }
 
 function sync(string stateStorePath) returns map<string>|error {
