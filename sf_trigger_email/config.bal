@@ -15,4 +15,3 @@ configurable int ftpPort = ?;
 configurable string ftpUsername = ?;
 configurable string ftpPassword = ?;
 configurable ftp:Protocol ftpProtocol = ?;
-configurable string accountingEntryFilePath = ?;
