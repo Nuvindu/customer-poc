@@ -1,5 +1,6 @@
 import ballerina/lang.value;
 import ballerinax/salesforce.pubsub;
+import ballerina/io;
 
 listener pubsub:Listener pubsubListener = new ({
     connection: {
@@ -19,8 +20,14 @@ listener pubsub:Listener pubsubListener = new ({
 
 service pubsub:Service /data/Donation__ChangeEvent on pubsubListener {
     remote function onEvent(pubsub:Event event) returns error? {
-        SalesforceDonation salesforceData = check value:cloneWithType(event.payload["changedData"]);
-        check sendEmailNotification(salesforceData);
+        io:println("Event occurred");
+        SalesforceDonation|error salesforceData = value:cloneWithType(event.payload["changedData"]);
+        if salesforceData !is error {
+            check sendEmailNotification(salesforceData);
+        } else {
+            io:println("Error occurred", salesforceData);
+        }
+
     }
 }
 
