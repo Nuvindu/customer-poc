@@ -41,42 +41,43 @@ function processFile(string fileName) returns FileProcessingResponse|error {
     check updateState(stateStorePath, processingState);
     return {
         fileName,
-        validEntries: valid
+        validEntries: valid,
+        rejectedEntries: rejected
     };
 }
 
 function validate(DonationEntryItem entry) returns error? {
     if entry.amount <= 0d {
         log:printError("Amount must be greater than zero",
-            transactionId = entry.transactionId,
-            donorId = entry.donorId,
-            errorCategory = "VALIDATION_METIER",
-            validationField = "amount");
+                transactionId = entry.transactionId,
+                donorId = entry.donorId,
+                errorCategory = "VALIDATION_METIER",
+                validationField = "amount");
         return error("Amount must be greater than zero");
     }
     if !entry.donorEmail.matches(re `^[^@\s]+@[^@\s]+\.[^@\s]+$`) {
         log:printError(string `Invalid email: ${entry.donorEmail}`,
-            transactionId = entry.transactionId,
-            donorId = entry.donorId,
-            errorCategory = "VALIDATION_METIER",
-            validationField = "donorEmail");
+                transactionId = entry.transactionId,
+                donorId = entry.donorId,
+                errorCategory = "VALIDATION_METIER",
+                validationField = "donorEmail");
         return error(string `Invalid email: ${entry.donorEmail}`);
     }
     if !entry.donationDate.matches(re `^\d{2}/\d{2}/\d{4}$`) {
         log:printError(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`,
-            transactionId = entry.transactionId,
-            donorId = entry.donorId,
-            errorCategory = "VALIDATION_METIER",
-            validationField = "donationDate");
+                transactionId = entry.transactionId,
+                donorId = entry.donorId,
+                errorCategory = "VALIDATION_METIER",
+                validationField = "donationDate");
         return error(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`);
     }
     string[] allowedPaymentModes = ["CARD", "BANK_TRANSFER", "CHEQUE", "CASH"];
     if allowedPaymentModes.indexOf(entry.paymentMode) is () {
         log:printError(string `Invalid payment mode: ${entry.paymentMode}. Allowed values: ${allowedPaymentModes.toString()}`,
-            transactionId = entry.transactionId,
-            donorId = entry.donorId,
-            errorCategory = "VALIDATION_METIER",
-            validationField = "paymentMode");
+                transactionId = entry.transactionId,
+                donorId = entry.donorId,
+                errorCategory = "VALIDATION_METIER",
+                validationField = "paymentMode");
         return error(string `Invalid payment mode: ${entry.paymentMode}. Allowed values: ${allowedPaymentModes.toString()}`);
     }
 }

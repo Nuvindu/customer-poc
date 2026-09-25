@@ -21,7 +21,9 @@ listener pubsub:Listener pubsubListener = new (config = {
 service pubsub:Service /data/Donation__ChangeEvent on pubsubListener {
     remote function onEvent(pubsub:Event event) returns error? {
         pubsub:Payload payload = event.payload;
+        io:println(event.payload);
         SalesforceDonation salesforceDonation = check value:cloneWithType(payload["changedData"]);
+
         check kafkaProducer->send({
             topic: kafkaTopic,
             value: salesforceDonation

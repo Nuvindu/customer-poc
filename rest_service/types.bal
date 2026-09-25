@@ -2,6 +2,7 @@
 type FileProcessingResponse record {|
     string fileName;
     DonationEntry validEntries;
+    DonationEntry rejectedEntries;
 |};
 
 type ProcessingRequest record {|
