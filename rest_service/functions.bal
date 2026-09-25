@@ -47,16 +47,20 @@ function processFile(string fileName) returns FileProcessingResponse|error {
 
 function validate(DonationEntryItem entry) returns error? {
     if entry.amount <= 0d {
+        log:printError("Amount must be greater than zero");
         return error("Amount must be greater than zero");
     }
     if !entry.donorEmail.matches(re `^[^@\s]+@[^@\s]+\.[^@\s]+$`) {
+        log:printError(string `Invalid email: ${entry.donorEmail}`);
         return error(string `Invalid email: ${entry.donorEmail}`);
     }
     if !entry.donationDate.matches(re `^\d{2}/\d{2}/\d{4}$`) {
+        log:printError(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`);
         return error(string `Invalid date format: ${entry.donationDate}. Expected DD/MM/YYYY`);
     }
     string[] allowedPaymentModes = ["CARD", "BANK_TRANSFER", "CHEQUE", "CASH"];
     if allowedPaymentModes.indexOf(entry.paymentMode) is () {
+        log:printError(string `Invalid payment mode: ${entry.paymentMode}. Allowed values: ${allowedPaymentModes.toString()}`);
         return error(string `Invalid payment mode: ${entry.paymentMode}. Allowed values: ${allowedPaymentModes.toString()}`);
     }
 }
