@@ -1,0 +1,32 @@
+services:
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.132.0
+    container_name: otelcol
+    command: ['--config', '/etc/otelcol.yaml']
+    environment:
+      MOESIF_APP_ID: 'eyJhcHAiOiI0OTM6MzA5MiIsInZlciI6IjIuMSIsIm9yZyI6IjE3Nzo1OTQiLCJpYXQiOjE3ODgyMjA4MDB9.HbfrqVBM9mS9KmBsqTXxNhGrNB8qWeFhCkVXuiiupoE'
+    ports:
+      - '4317:4317'
+      - '4318:4318'
+    volumes:
+      - ./otelcol.yaml:/etc/otelcol.yaml:ro
+    networks:
+      - otelnet
+
+  fluent-bit:
+    image: fluent/fluent-bit:3.0
+    container_name: fluent-bit
+    depends_on:
+      - otelcol
+    ports:
+      - '2020:2020'
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      # Location for the log file from the Ballerina service
+      - <ballerina-log-path>:/app/logs:ro
+    networks:
+      - otelnet
+
+networks:
+  otelnet:
+    driver: bridge
