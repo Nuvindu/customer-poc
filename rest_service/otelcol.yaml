@@ -1,0 +1,77 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: '0.0.0.0:4317'
+      http:
+        endpoint: '0.0.0.0:4318'
+
+processors:
+  resource:
+    attributes:
+      - key: service.name
+        value: ballerina-service
+        action: upsert
+      - key: deployment.environment
+        value: prod
+        action: upsert
+
+  transform/severity_from_message:
+    log_statements:
+      - context: log
+        statements:
+          # Set default severity to INFO for all logs first
+          - set(severity_number, 9) where body != nil
+          - set(severity_text, "INFO") where body != nil
+
+          # Try to parse JSON body, but handle parsing errors gracefully
+          - set(cache["is_json"], false)
+          - set(cache["is_json"], true) where body != nil and IsMatch(body, "^\\s*\\{")
+
+          # For JSON logs, parse and extract level
+          - set(cache["parsed_body"], ParseJSON(body)) where cache["is_json"] == true
+
+          # Override with specific levels based on JSON level field
+          - set(severity_number, 1) where cache["is_json"] == true and cache["parsed_body"]["level"] == "TRACE"
+          - set(severity_text, "TRACE") where cache["is_json"] == true and cache["parsed_body"]["level"] == "TRACE"
+          - set(severity_number, 5) where cache["is_json"] == true and cache["parsed_body"]["level"] == "DEBUG"
+          - set(severity_text, "DEBUG") where cache["is_json"] == true and cache["parsed_body"]["level"] == "DEBUG"
+          - set(severity_number, 9) where cache["is_json"] == true and cache["parsed_body"]["level"] == "INFO"
+          - set(severity_text, "INFO") where cache["is_json"] == true and cache["parsed_body"]["level"] == "INFO"
+          - set(severity_number, 13) where cache["is_json"] == true and cache["parsed_body"]["level"] == "WARN"
+          - set(severity_text, "WARN") where cache["is_json"] == true and cache["parsed_body"]["level"] == "WARN"
+          - set(severity_number, 17) where cache["is_json"] == true and cache["parsed_body"]["level"] == "ERROR"
+          - set(severity_text, "ERROR") where cache["is_json"] == true and cache["parsed_body"]["level"] == "ERROR"
+          - set(severity_number, 21) where cache["is_json"] == true and cache["parsed_body"]["level"] == "FATAL"
+          - set(severity_text, "FATAL") where cache["is_json"] == true and cache["parsed_body"]["level"] == "FATAL"
+
+  batch: {}
+
+exporters:
+  # OTLP over HTTP to Moesif
+  otlphttp:
+    endpoint: 'https://api.moesif.net'
+    logs_endpoint: 'https://api.moesif.net/v1/logs'
+    headers:
+      X-Moesif-Application-Id: 'eyJhcHAiOiI0OTM6MzA5MiIsInZlciI6IjIuMSIsIm9yZyI6IjE3Nzo1OTQiLCJpYXQiOjE3ODgyMjA4MDB9.HbfrqVBM9mS9KmBsqTXxNhGrNB8qWeFhCkVXuiiupoE'
+    compression: none
+    timeout: 10s
+    sending_queue:
+      enabled: true
+      num_consumers: 2
+      queue_size: 512
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 10s
+      max_elapsed_time: 0s
+
+service:
+  telemetry:
+    logs:
+      level: debug
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [resource, transform/severity_from_message, batch]
+      exporters: [otlphttp]

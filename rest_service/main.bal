@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/observe as _;
-import ballerinax/jaeger as _;
-import ballerinax/prometheus as _;
+import ballerinax/moesif as _;
 
 listener http:Listener httpDefaultListener = http:getDefaultListener();
 
@@ -17,7 +16,6 @@ service / on httpDefaultListener {
             }
             return fileProcessingResponse;
         } on fail error err {
-            // handle error
             return error("unhandled error", err);
         }
     }
